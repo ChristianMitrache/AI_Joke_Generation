@@ -29,7 +29,6 @@ The dataset titled "One Million Reddit Jokes" by HuggingFace was used. Features 
 
 Preliminary analysis on the remaining jokes revealed that the remaining jokes contain many semi-duplicates, (jokes which have very similar buildups or punchlines). It was decided to keep these jokes in the training data as this has the effect of biasing the model to more popular punchline formats. Jokes with many semi-duplicates usually have larger scores, so keeping semi-duplicates in training can be viewed as over-sampling jokes with higher scores.
 
-
 ## Architecture
 
 The architecture that was used consists of a transformer based encoder-decoder model were the encoder consists of a pre-trained RoBERTa model and the decoder consists of a similar model with added randomly initialized cross attention layers.
@@ -48,13 +47,15 @@ The output from the 12 decoder blocks is then passed into a fully connected whic
 
 The RoBERTa model used in the encoder uses pre-trained weights to make fine-tuning on jokes computationally feasible with a google-collab GPU. In addition to this, common layers between the encoder and decoder blocks also share the same pre-trained weights during training. The only layers that were trained from scratch are the randomly initialized cross attention layers in the decoder blocks.
 
+![image](https://user-images.githubusercontent.com/102553420/169894456-075ad94c-3266-47c1-a0fd-adde1541428b.png)
+
 ## Training
 
 A weighted loss that gives higher weight to better jokes was used. To achieve this, a log transformation was applied to the scores with the result being multiplied by the loss associated to that joke. Let $N_B$ be the number of batches in an epoch and let $B$ denote batch size. For joke $t$, denote the sequence of tokens in the buildup as $g_{1,t},...g_{p,t}$ and the sequence of tokens in the punchline as $S_{1,t},...,S_{l,t}$ . The weighted training loss is defined by: 
 
-$$L = -\sum_{i=1}^{N_B} \sum_{j \in B_i} \sum_{k = 1}^{l_j} w_{i,j}\times log(Pr(S_{k,j}|g_{1,j},...,g_{p,j}))$$
+$$L = -\sum_{i=1}^{N_B} \sum_{j \in B_i} \sum_{k = 1}^{l_j} w_{j}\times log(Pr(S_{k,j}|g_{1,j},...,g_{p,j}))$$
 
-Where $w_{i,j}$ is given by: $w_{i,j} = log(score_{i,j}+1)+1$  
+Where $w_{i,j}$ is given by: $w_{j} = log(score_{j}+1)+1$  
 
 ## Joke Generation
 
@@ -62,12 +63,14 @@ In order to generate jokes from the model, a sequence of words needs to be sampl
 
 "Why did the chicken cross the road?"
 
-Passing this in to the model yields a sequence of log distributions. We only sample from the first log distribution: $log(Pr_1(V_1,...,V_M|'why','did',...'?'))$. 
+Passing this in to the model yields a sequence of log distributions. We only sample from the first log distribution: 
 
+
+$$log(Pr_1(V_1,...,V_M|'why','did',...'?'))$$
 We get the word "To". 
 
 Passing "Why did the chicken cross the road? To" into the model and sampling from the first log distribution yields the word: "get".
 
-We can then continue this process until we get an "<EOS>" (End of Sequence token) which signals to the model to stop the process. After sequentially passing in the previous outputs into the model and sampling we are given the punchline: "To get to the other side.".
+We can then continue this process until we get an End of Sequence token which signals to the model to stop the process. After sequentially passing in the previous outputs into the model and sampling we are given the punchline: "To get to the other side.".
   
 There are tricks that I used to making the joke generation smoother and more human-sounding, however I do not get into this here. If you are interested, check out this notebook: https://colab.research.google.com/github/huggingface/blog/blob/main/notebooks/02_how_to_generate.ipynb.
