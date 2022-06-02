@@ -1,6 +1,6 @@
 # AI Joke Generation
 
-Humour is a complex subject that is not easily grasped by many humans. This makes the task of teaching an AI model to learn the subtle intricacies of humour all the more challenging. The aim of this project is to train a state-of-the-art transformer based model in order to achieve humour generation that is both funny and human-like.
+Humour is a complex subject that is not easily grasped by many humans. This makes the task of teaching an AI model to learn the subtle intricacies of humour even more challenging. The aim of this project is to train a state-of-the-art transformer based model in order to achieve humour generation that is both funny and human-like.
 
 ## Selected Examples of Model Output:
 
@@ -15,13 +15,10 @@ Model: "He was tired of all the altitude."
 
 ## Previous Work
 
-Efforts to computationally generate humour go back to the 1990s. In the recent past, deep
-learning models (in particular models based on the transformer architecture) have pushed
-the state of the art in all major NLP tasks. Previous work in humour generation has used sequence-to-sequence
-modesl with LSTM units for both the encoder and decoder to generate jokes. Some previous GITHUB repos fine-tuned GPT2 models to perform this task. This project
-aims to improve on this by fine-tuning RoBERTaSHARE; an encoder-decoder architecture
-which uses robustly pre-trained BERT architectures for both the encoder (Trained as a
+Efforts to computationally generate humour go back to the 1990s. In the recent past, deep learning models (in particular models based on the transformer architecture) have pushed the state of the art in all major NLP tasks. Previous work in humour generation has used sequence-to-sequence
+models with LSTM units for both the encoder and decoder to generate jokes. Some previous GITHUB repos fine-tuned GPT2 models to perform this task. This project aims to improve on this by fine-tuning RoBERTaSHARE; an encoder-decoder architecture which uses robustly pre-trained BERT architectures for both the encoder (Trained as a
 Masked Language Model) and decoder (Trained as a Causal Language model).
+
 
 ## Data-Set 
 
@@ -29,9 +26,10 @@ The dataset titled "One Million Reddit Jokes" by HuggingFace was used. Features 
 
 Preliminary analysis on the remaining jokes revealed that the remaining jokes contain many semi-duplicates, (jokes which have very similar buildups or punchlines). It was decided to keep these jokes in the training data as this has the effect of biasing the model to more popular punchline formats. Jokes with many semi-duplicates usually have larger scores, so keeping semi-duplicates in training can be viewed as over-sampling joke formats with higher scores.
 
+
 ## Architecture
 
-The architecture that was used consists of a transformer based encoder-decoder model were the encoder consists of a pre-trained RoBERTa model and the decoder consists of a similar model with added randomly initialized cross attention layers.
+The architecture that was used consists of a transformer-based encoder-decoder model were the encoder consists of a pre-trained RoBERTa model and the decoder consists of a similar model with added randomly initialized cross attention layers.
 
 ### Encoder Architecture
 
@@ -39,9 +37,10 @@ The Encoder architecture consists solely of a pre-trained RoBERTa architecture w
 
 ### Decoder Architecture
 
-The decoder architecture consists of 12 decoder blocks which have similar architectures as the 12 encoder blocks in the previous section. The only difference between the 2 blocks is that in a decoder block, there is a randomly intialized cross attention layer between the self attention layer and the two fully connected layers. 
+The decoder architecture consists of 12 decoder blocks which have similar architectures as the 12 encoder blocks in the previous section. The only difference between the 2 blocks is that in a decoder block, there is a randomly initialized cross attention layer between the self attention layer and the two fully connected layers. 
 
 The output from the 12 decoder blocks is then passed into a fully connected layer which is trained to output a sequence of logit distributions for each word in the sentence (conditioned on the buildup given to the model). In probabilistic terms this can be viewed as outputting the log distributions: $logit\big(Pr_1(V_1,...,V_M|g_1,...g_k)),logit(Pr_2(V_1,...,V_M|g_1,...g_k)\big)...$ where $g_1,...,g_k$ are the words in the buildup given by the user and $V_1,...,V_M$ are the words in the vocabulary.
+
 
 ### Weight Sharing Among Decoder and Encoder Blocks
 
@@ -57,19 +56,20 @@ $$L = -\sum_{i=1}^{N_B} \sum_{j \in B_i} \sum_{k = 1}^{l_j} w_{i,j}\times log(Pr
 
 Where $w_{i,j}$ is given by: $w_{i,j} = log(score_{i,j}+1)+1$  
 
+
 ## Joke Generation
 
-In order to generate jokes from the model, a sequence of words needs to be sampled sequentially from the model. To see how this is done, consider the punchline: 
+To generate jokes from the model, a sequence of words needs to be sampled sequentially from the model. To see how this is done, consider the punchline: 
 
 "Why did the chicken cross the road?"
 
-Passing this in to the model yields a sequence of logit distributions. We sample from the first logit distribution: 
+Passing this into the model yields a sequence of logit distributions. We sample from the first logit distribution: 
 
 $$v \sim Pr_1(V_1,...,V_M|'why','did',...'?')$$ 
 
 and consider $v_1$ to obtain the next word "To". 
 
-Continuing on, we pass "Why did the chicken cross the road? To" into the model and sample from the first logit distribution:
+Continuing, we pass "Why did the chicken cross the road? To" into the model and sample from the first logit distribution:
 
 $$w \sim Pr_1(V_2,...,V_M|'why','did',...'?',v_1)$$ 
 
@@ -77,4 +77,5 @@ and consider $w_1$ to obtain the next word "get".
 
 We can then continue this process until we get an End of Sequence token which signals to the model to stop the process. After sequentially passing in the previous outputs into the model and sampling we are given the punchline: "To get to the other side.".
   
-There are tricks that I used to making the joke generation smoother and more human-sounding, however I do not get into this here. If you are interested, check out this notebook: https://colab.research.google.com/github/huggingface/blog/blob/main/notebooks/02_how_to_generate.ipynb.
+There are tricks that I used to making the joke generation smoother and more human sounding, however I do not get into this here. If you are interested, check out this notebook: https://colab.research.google.com/github/huggingface/blog/blob/main/notebooks/02_how_to_generate.ipynb.
+
