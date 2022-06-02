@@ -67,13 +67,13 @@ Passing this into the model yields a sequence of logit distributions. We sample 
 
 $$v \sim Pr(V_1,...,V_M|'why','did',...'?')$$ 
 
-and consider $v_1$ to obtain the next word "To". 
+to obtain the next word "To". 
 
 Continuing, we pass "Why did the chicken cross the road? To" into the model and sample from the first logit distribution:
 
 $$w \sim Pr(V_1,...,V_M|'why','did',...'?',v_1)$$ 
 
-and consider $w_1$ to obtain the next word "get". 
+to obtain the next word "get". 
 
 We can then continue this process until we get an End of Sequence token which signals to the model to stop the process. After sequentially passing in the previous outputs into the model and sampling we are given the punchline: "To get to the other side.".
   
