@@ -18,16 +18,16 @@ Model: "He was tired of all the altitude."
 Efforts to computationally generate humour go back to the 1990s. In the recent past, deep
 learning models (in particular models based on the transformer architecture) have pushed
 the state of the art in all major NLP tasks. Previous work in humour generation has used sequence-to-sequence
-modesl with LSTM units for both the encoder and decoder to generate jokes. Some previous GITHUB repos fine-tuned GPT2 models to  This project
+modesl with LSTM units for both the encoder and decoder to generate jokes. Some previous GITHUB repos fine-tuned GPT2 models to perform this task. This project
 aims to improve on this by fine-tuning RoBERTaSHARE; an encoder-decoder architecture
 which uses robustly pre-trained BERT architectures for both the encoder (Trained as a
 Masked Language Model) and decoder (Trained as a Causal Language model).
 
 ## Data-Set 
 
-The dataset titled "One Million Reddit Jokes" by HuggingFace was used. Features that were extracted from the data-set consisted of build-ups, punchlines and scores (up-votes). Only jokes that had fewer then 50 words in the buildup and fewer then 20 words in the punchline were kept. Restricting the jokes to these sequence lengths provids 2 major benefits. First, the shorter sequence lengths drastically improved the speed and memory requirements of gradient updates enabling the training of larger models on google collab GPUs. Secondly, shorter less complex sequences should make it easier for the model to learn relationships between the buildups and punchlines. After the data pre-processing, the data-set contained approximately 350,000 jokes.
+The dataset titled "One Million Reddit Jokes" by HuggingFace was used. Features that were extracted from the data-set consisted of build-ups, punchlines and scores (up-votes). Only jokes that had fewer then 50 words in the buildup and fewer then 20 words in the punchline were kept. Restricting the jokes to these sequence lengths provides 2 major benefits. First, the shorter sequence lengths drastically improved the speed and memory requirements of gradient updates enabling the training of larger models on google collab GPUs. Secondly, shorter, less complex sequences should make it easier for the model to learn relationships between the buildups and punchlines. After the data pre-processing, the data-set contained approximately 350,000 jokes.
 
-Preliminary analysis on the remaining jokes revealed that the remaining jokes contain many semi-duplicates, (jokes which have very similar buildups or punchlines). It was decided to keep these jokes in the training data as this has the effect of biasing the model to more popular punchline formats. Jokes with many semi-duplicates usually have larger scores, so keeping semi-duplicates in training can be viewed as over-sampling jokes with higher scores.
+Preliminary analysis on the remaining jokes revealed that the remaining jokes contain many semi-duplicates, (jokes which have very similar buildups or punchlines). It was decided to keep these jokes in the training data as this has the effect of biasing the model to more popular punchline formats. Jokes with many semi-duplicates usually have larger scores, so keeping semi-duplicates in training can be viewed as over-sampling joke formats with higher scores.
 
 ## Architecture
 
@@ -41,7 +41,7 @@ The Encoder architecture consists solely of a pre-trained RoBERTa architecture w
 
 The decoder architecture consists of 12 decoder blocks which have similar architectures as the 12 encoder blocks in the previous section. The only difference between the 2 blocks is that in a decoder block, there is a randomly intialized cross attention layer between the self attention layer and the two fully connected layers. 
 
-The output from the 12 decoder blocks is then passed into a fully connected which is trained to output a sequence of log distributions for each word in the sentence (conditioned on the buildup given to the model). In probabilistic terms this can be viewed as outputting the log distributions: $log(Pr_1(V_1,...,V_M|g_1,...g_k)),log(Pr_2(V_1,...,V_M|g_1,...g_k))...$ where $g_1,...,g_k$ are the words in the buildup given by the user and $V_1,...,V_M$ are the words in the vocabulary.
+The output from the 12 decoder blocks is then passed into a fully connected layer which is trained to output a sequence of logit distributions for each word in the sentence (conditioned on the buildup given to the model). In probabilistic terms this can be viewed as outputting the log distributions: $logit\big(Pr_1(V_1,...,V_M|g_1,...g_k)),logit(Pr_2(V_1,...,V_M|g_1,...g_k)\big)...$ where $g_1,...,g_k$ are the words in the buildup given by the user and $V_1,...,V_M$ are the words in the vocabulary.
 
 ### Weight Sharing Among Decoder and Encoder Blocks
 
@@ -51,25 +51,29 @@ The RoBERTa model used in the encoder uses pre-trained weights to make fine-tuni
 
 ## Training
 
-A weighted loss that gives higher weight to better jokes was used. To achieve this, a log transformation was applied to the scores with the result being multiplied by the loss associated to that joke. Let $N_B$ be the number of batches in an epoch and let $B$ denote batch size. For joke $t$, denote the sequence of tokens in the buildup as $g_{1,t},...g_{p,t}$ and the sequence of tokens in the punchline as $S_{1,t},...,S_{l,t}$ . The weighted training loss is defined by: 
+A weighted loss that gives higher weight to better jokes was used. To achieve this, a log transformation was applied to the scores with the result being multiplied by the loss associated to that joke. Let $N_B$ be the number of batches in an epoch and let $B$ denote batch size. For joke $t$, denote the sequence of tokens in the buildup as $g_{1,t},...g_{p,t}$ and the sequence of tokens in the punchline as $S_{1,t},...,S_{l,t}$ . Finally, let $l_j$ be the length of the punchline of joke $j$. The weighted training loss is defined by: 
 
-$$L = -\sum_{i=1}^{N_B} \sum_{j \in B_i} \sum_{k = 1}^{l_j} w_{j}\times log(Pr(S_{k,j}|g_{1,j},...,g_{p,j}))$$
+$$L = -\sum_{i=1}^{N_B} \sum_{j \in B_i} \sum_{k = 1}^{l_j} w_{i,j}\times log(Pr(S_{k,j}|g_{1,j},...,g_{p,j}))$$
 
-Where $w_{i,j}$ is given by: $w_{j} = log(score_{j}+1)+1$  
+Where $w_{i,j}$ is given by: $w_{i,j} = log(score_{i,j}+1)+1$  
 
 ## Joke Generation
 
-In order to generate jokes from the model, a sequence of words needs to be sampled sequentially the model. To see how this is done, consider the punchline: 
+In order to generate jokes from the model, a sequence of words needs to be sampled sequentially from the model. To see how this is done, consider the punchline: 
 
 "Why did the chicken cross the road?"
 
-Passing this in to the model yields a sequence of log distributions. We only sample from the first log distribution: 
+Passing this in to the model yields a sequence of logit distributions. We sample from the first logit distribution: 
 
+$$v \sim Pr_1(V_1,...,V_M|'why','did',...'?')$$ 
 
-$$log(Pr_1(V_1,...,V_M|'why','did',...'?'))$$
-We get the word "To". 
+and consider $v_1$ to obtain the next word "To". 
 
-Passing "Why did the chicken cross the road? To" into the model and sampling from the first log distribution yields the word: "get".
+Continuing on, we pass "Why did the chicken cross the road? To" into the model and sample from the first logit distribution:
+
+$$w \sim Pr_1(V_2,...,V_M|'why','did',...'?',v_1)$$ 
+
+and consider $w_1$ to obtain the next word "get". 
 
 We can then continue this process until we get an End of Sequence token which signals to the model to stop the process. After sequentially passing in the previous outputs into the model and sampling we are given the punchline: "To get to the other side.".
   
