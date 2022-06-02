@@ -71,7 +71,7 @@ and consider $v_1$ to obtain the next word "To".
 
 Continuing, we pass "Why did the chicken cross the road? To" into the model and sample from the first logit distribution:
 
-$$w \sim Pr(V_2,...,V_M|'why','did',...'?',v_1)$$ 
+$$w \sim Pr(V_1,...,V_M|'why','did',...'?',v_1)$$ 
 
 and consider $w_1$ to obtain the next word "get". 
 
