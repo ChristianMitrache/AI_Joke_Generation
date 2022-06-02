@@ -77,5 +77,5 @@ to obtain the next word "get".
 
 We can then continue this process until we get an End of Sequence token which signals to the model to stop the process. After sequentially passing in the previous outputs into the model and sampling we are given the punchline: "To get to the other side.".
   
-There are tricks that I used to making the joke generation smoother and more human sounding, however I do not get into this here. If you are interested, check out this notebook: https://colab.research.google.com/github/huggingface/blog/blob/main/notebooks/02_how_to_generate.ipynb.
+There are sampling tricks that I used to making the joke generation smoother and more human sounding, however I do not get into this here. If you are interested, check out this notebook: https://colab.research.google.com/github/huggingface/blog/blob/main/notebooks/02_how_to_generate.ipynb.
 
