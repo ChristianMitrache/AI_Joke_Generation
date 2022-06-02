@@ -65,13 +65,13 @@ To generate jokes from the model, a sequence of words needs to be sampled sequen
 
 Passing this into the model yields a sequence of logit distributions. We sample from the first logit distribution: 
 
-$$v \sim Pr_1(V_1,...,V_M|'why','did',...'?')$$ 
+$$v \sim Pr(V_1,...,V_M|'why','did',...'?')$$ 
 
 and consider $v_1$ to obtain the next word "To". 
 
 Continuing, we pass "Why did the chicken cross the road? To" into the model and sample from the first logit distribution:
 
-$$w \sim Pr_1(V_2,...,V_M|'why','did',...'?',v_1)$$ 
+$$w \sim Pr(V_2,...,V_M|'why','did',...'?',v_1)$$ 
 
 and consider $w_1$ to obtain the next word "get". 
 
