@@ -1,0 +1,6 @@
+*.json filter=lfs diff=lfs merge=lfs -text
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
+Model_Directory/ filter=lfs diff=lfs merge=lfs -text
+Cleaned_Bad_Words.csv filter=lfs diff=lfs merge=lfs -text
