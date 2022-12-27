@@ -1,10 +1,18 @@
 import streamlit as st
 from Joke_Generation import TrainedJokeGenerator
 
+@st.cache
+def Intialize_joke_model():
+  """
+  Function that caches the joke generator
+  :return: Returns an instance of the TrainedJokeGenerator which will be used
+  """
+  return TrainedJokeGenerator('Model_Directory', 'Cleaned_Bad_Words.csv')
 
 def main():
+
   # Initializing model
-  trained_joke_generator = TrainedJokeGenerator('Model_Directory','Cleaned_Bad_Words.csv')
+  trained_joke_generator = Intialize_joke_model()
   # Create a text input for the user
   user_buildup = st.text_input("Enter a Buildup to your joke")
 
