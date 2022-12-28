@@ -1,5 +1,6 @@
 from transformers import EncoderDecoderModel, RobertaTokenizerFast
 import pandas as pd
+import streamlit as st
 
 class TrainedJokeGenerator:
     """
@@ -9,7 +10,8 @@ class TrainedJokeGenerator:
     decoder_tokenizer: variable that stores tokenizer for decoding model output
     weighted_loss: variable that indicates whether loss was weighted by reddit scores.
     """
-    def __init__(self, model_directory,bad_words_directory = None):
+
+    def __init__(self, model_directory,streamlit_dict = False,bad_words_directory = None):
         """
         Goes through model directory and initializes model+ tokenizers for the model.
         :param model_directory: directory where the model and strings for model are stored
@@ -48,7 +50,7 @@ class TrainedJokeGenerator:
         """
         return "TODO"
 
-    def generate(self, input_text, top_k=None, top_p=None, num_sequences=4, no_repeat_ngram_size=4,
+    def generate(self, input_text, top_k=None, top_p=None, num_sequences=4, no_repeat_ngram_size=3,
                  remove_vulgar=True, repetition_penalty=1,temperature = 1):
         """
         This function specifies how to sample from the conditional word log probabilities to create jokes.
