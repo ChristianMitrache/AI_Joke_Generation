@@ -15,7 +15,8 @@ def main():
 
   # Initializing model and storing session state: (Only initialize model if you haven't already done this)
   if 'Model' not in st.session_state:
-    st.session_state['Model'] = Intialize_joke_model()
+    with st.spinner(text="Loading Language Model.... This may take a few seconds"):
+      st.session_state['Model'] = Intialize_joke_model()
 
   #Making Columns:
   col1, col2 = st.columns(2)
@@ -48,7 +49,8 @@ def main():
   # If the button was clicked
   if submit_button:
     # Get the model output
-    st.session_state['Generated_Punchlines'] = st.session_state['Model'].generate(user_buildup, num_sequences=int(num_jokes), temperature=temperature)
+    with st.spinner(text="Generating Punchlines.... \n"):
+      st.session_state['Generated_Punchlines'] = st.session_state['Model'].generate(user_buildup, num_sequences=int(num_jokes), temperature=temperature)
 
   if 'Generated_Punchlines' in st.session_state:
     st.subheader('Generated Punchlines:')
