@@ -1,7 +1,7 @@
 from transformers import EncoderDecoderModel
 from transformers import RobertaTokenizerFast
 
-def load_roberta_encoder_decoder(directory= None,dropout_p = 0.1,tie_params = True):
+def load_roberta_encoder_decoder(directory= None,dropout_p = None,tie_params = True):
     """
     Loads a pre-trained Roberta-2-Roberta model from a directory in google drive.
     :param dropout_p: dropout for cross attention layers (default: 0.1)
@@ -19,8 +19,10 @@ def load_roberta_encoder_decoder(directory= None,dropout_p = 0.1,tie_params = Tr
     roberta_shared.config.eos_token_id = tokenizer.eos_token_id
     roberta_shared.config.pad_token_id = tokenizer.pad_token_id
     roberta_shared.config.vocab_size = roberta_shared.config.encoder.vocab_size
+    roberta_shared.config.no_repeat_ngram_size = 3
     # Setting Dropout
-    roberta_shared.config.decoder.hidden_dropout_prob = dropout_p
-    roberta_shared.config.encoder.hidden_dropout_prob = dropout_p
+    if dropout_p:
+        roberta_shared.config.decoder.hidden_dropout_prob = dropout_p
+        roberta_shared.config.encoder.hidden_dropout_prob = dropout_p
 
     return roberta_shared

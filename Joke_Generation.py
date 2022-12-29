@@ -17,21 +17,22 @@ class TrainedJokeGenerator:
         :param model_directory: directory where the model and strings for model are stored
         """
         self.model = EncoderDecoderModel.from_pretrained(model_directory)
+        # Moving model to GPU
         self.model.to("cuda")
+        # Setting Model to evaluation state
+        self.model.eval()
+        # Initializing Tokenizers
         self.encoder_tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base")
         self.decoder_tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base")
-        print("passsed 1")
         if bad_words_directory:
             vulgar_words_data = pd.read_csv(bad_words_directory)
             vulgar_list = vulgar_words_data["2g1c"].tolist()
             # Encoding bad-words
             vulgar_token_id_list = []
-            print("passed 2")
             for vulgar_word in vulgar_list:
                 vulgar_token_id_list.append(self.encoder_tokenizer.encode(vulgar_word))  # ,add_prefix_space = True))
         else:
             vulgar_token_id_list = None
-        print("passed 3")
         self.bad_word_list = vulgar_token_id_list
 
     def format_jokes(self,buildup, joke_list):
@@ -48,7 +49,7 @@ class TrainedJokeGenerator:
         :param bad_word_list:
         :return:
         """
-        return "TODO"
+        print("TODO")
 
     def generate(self, input_text, top_k=None, top_p=None, num_sequences=4, no_repeat_ngram_size=3,
                  remove_vulgar=True, repetition_penalty=1,temperature = 1):
