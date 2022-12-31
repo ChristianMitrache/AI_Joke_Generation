@@ -1,4 +1,4 @@
-from transformers import EncoderDecoderModel, RobertaTokenizerFast
+from transformers import EncoderDecoderModel, RobertaTokenizerFast,RobertaTokenizer
 import pandas as pd
 import streamlit as st
 
@@ -11,7 +11,7 @@ class TrainedJokeGenerator:
     weighted_loss: variable that indicates whether loss was weighted by reddit scores.
     """
 
-    def __init__(self, model_directory,streamlit_dict = False,bad_words_directory = None):
+    def __init__(self, model_directory,bad_words_directory = None):
         """
         Goes through model directory and initializes model+ tokenizers for the model.
         :param model_directory: directory where the model and strings for model are stored
@@ -24,16 +24,15 @@ class TrainedJokeGenerator:
         # Initializing Tokenizers
         self.encoder_tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base")
         self.decoder_tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base")
+        #Initializing empty bad word list:
+        self.bad_word_list = []
+
         if bad_words_directory:
-            vulgar_words_data = pd.read_csv(bad_words_directory)
-            vulgar_list = vulgar_words_data["2g1c"].tolist()
-            # Encoding bad-words
-            vulgar_token_id_list = []
+            # getting bad words list:
+            vulgar_list = pd.read_csv(bad_words_directory)["2g1c"].tolist()
+            # Encoding bad-words into list of tokens and appending to bad_words_list variable:
             for vulgar_word in vulgar_list:
-                vulgar_token_id_list.append(self.encoder_tokenizer.encode(vulgar_word))  # ,add_prefix_space = True))
-        else:
-            vulgar_token_id_list = None
-        self.bad_word_list = vulgar_token_id_list
+                self.bad_word_list.append(self.encoder_tokenizer.encode(vulgar_word, add_special_tokens= False))
 
     def format_jokes(self,buildup, joke_list):
         """
@@ -43,13 +42,15 @@ class TrainedJokeGenerator:
         """
         return "TODO"
 
-    def add_extra_bad_words(self,bad_word_list):
+    def add_extra_bad_words(self,bad_word_inputs_list):
         """
         Allows user to append more bad words onto bad_word list
-        :param bad_word_list:
-        :return:
+        :param bad_word_list: list of list of phrases.
+        :return:None
         """
-        print("TODO")
+        for bad_word in bad_word_inputs_list:
+            self.bad_word_list.append(self.encoder_tokenizer.encode(bad_word, add_special_tokens=False))
+
 
     def generate(self, input_text, top_k=None, top_p=None, num_sequences=4, no_repeat_ngram_size=3,
                  remove_vulgar=True, repetition_penalty=1,temperature = 1):
