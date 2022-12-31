@@ -1,5 +1,6 @@
 pyarrow~=7.0.0
 datasets~=2.1.0
+torch ==1.13.1
 transformers~=4.18.0
 pandas~=1.2.4
 matplotlib~=3.4.2
