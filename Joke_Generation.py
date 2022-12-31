@@ -1,6 +1,5 @@
 from transformers import EncoderDecoderModel, RobertaTokenizerFast,RobertaTokenizer
 import pandas as pd
-import streamlit as st
 
 class TrainedJokeGenerator:
     """
@@ -11,14 +10,17 @@ class TrainedJokeGenerator:
     weighted_loss: variable that indicates whether loss was weighted by reddit scores.
     """
 
-    def __init__(self, model_directory,bad_words_directory = None):
+    def __init__(self, model_directory,bad_words_directory = None, cuda_available = False):
         """
         Goes through model directory and initializes model+ tokenizers for the model.
         :param model_directory: directory where the model and strings for model are stored
         """
         self.model = EncoderDecoderModel.from_pretrained(model_directory)
-        # Moving model to GPU
-        self.model.to("cuda")
+
+        # Checking for GPU:
+        self.cuda_available = cuda_available
+        if self.cuda_available:
+            self.model.to("cuda")
         # Setting Model to evaluation state
         self.model.eval()
         # Initializing Tokenizers
@@ -69,8 +71,15 @@ class TrainedJokeGenerator:
         # Dealing with vulgar words:
 
         inputs = self.encoder_tokenizer(input_text, return_tensors="pt")
-        input_ids = inputs.input_ids.to("cuda")
-        attention_mask = inputs.attention_mask.to("cuda")
+        # handling whether GPU is available
+
+        if self.cuda_available:
+            input_ids = inputs.input_ids.to("cuda")
+            attention_mask = inputs.attention_mask.to("cuda")
+        else:
+            input_ids = inputs.input_ids
+            attention_mask = inputs.attention_mask
+
         # outputs = model.generate(input_ids, attention_mask=attention_mask)
         outputs = self.model.generate(input_ids, do_sample=True, max_length=50,
                                       top_k=top_k, top_p=top_p, num_return_sequences=num_sequences,
