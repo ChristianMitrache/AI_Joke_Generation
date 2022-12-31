@@ -1,13 +1,13 @@
 import streamlit as st
 from Joke_Generation import TrainedJokeGenerator
 
-
-#def Intialize_joke_model():
-#  """
-#  Function that caches the joke generator
-#  :return: Returns an instance of the TrainedJokeGenerator which will be used
-#  """
-#  return TrainedJokeGenerator('Model_Directory/Checkpoint-2300_Dropout_0.2', 'Cleaned_Bad_Words.csv')
+@st.experimental_singleton
+def Intialize_joke_model():
+  """
+  Function that caches the joke generator
+  :return: Returns an instance of the TrainedJokeGenerator which will be used
+  """
+  return TrainedJokeGenerator('Model_Directory/Checkpoint-2300_Dropout_0.2', 'Cleaned_Bad_Words.csv')
 
 def main():
 
@@ -17,7 +17,7 @@ def main():
   # Initializing model and storing session state: (Only initialize model if you haven't already done this)
   if 'Model' not in st.session_state:
     with st.spinner(text="Loading Language Model.... This may take a minute."):
-      st.session_state['Model'] = TrainedJokeGenerator('Model_Directory/Checkpoint-2300_Dropout_0.2', 'Cleaned_Bad_Words.csv')
+      st.session_state['Model'] = Intialize_joke_model()
 
   # widgets for left column:
   st.sidebar.title("Customize your Joke Generation 😎")
