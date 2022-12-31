@@ -24,8 +24,8 @@ class TrainedJokeGenerator:
         # Setting Model to evaluation state
         self.model.eval()
         # Initializing Tokenizers
-        self.encoder_tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base")
-        self.decoder_tokenizer = RobertaTokenizerFast.from_pretrained("roberta-base")
+        self.encoder_tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+        self.decoder_tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
         #Initializing empty bad word list:
         self.bad_word_list = []
 
